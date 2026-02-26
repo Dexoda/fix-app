@@ -31,7 +31,7 @@ import { computed } from 'vue'
 const props = defineProps({ employee: Object })
 defineEmits(['photo', 'video', 'no-bag'])
 const initials = computed(() => {
-  const parts = props.employee.full_name.split(' ')
+  const parts = props.employee.full_name.split(' ').filter(p => p)
   return parts.map(p => p[0]).slice(0, 2).join('').toUpperCase()
 })
 </script>

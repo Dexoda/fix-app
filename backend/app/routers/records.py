@@ -28,20 +28,24 @@ async def upload_record(
     current_user: User = Depends(get_current_user),
 ):
     content_type = file.content_type or ""
+    content = await file.read()
     if content_type.startswith("video/"):
         rec_type = RecordType.video
-        # Check size
-        content = await file.read()
         if len(content) > settings.MAX_VIDEO_SIZE_MB * 1024 * 1024:
             raise HTTPException(status_code=400, detail=f"Video exceeds {settings.MAX_VIDEO_SIZE_MB}MB limit")
-        # Reset for saving
-        import io
-        file.file = io.BytesIO(content)
-        file.size = len(content)
     else:
         rec_type = RecordType.photo
 
-    rel_path, file_size, mime_type = await save_file(file, shop_id, employee_id)
+    extension = (file.filename or "file").rsplit(".", 1)[-1].lower() if "." in (file.filename or "") else "bin"
+    from ..services.file_storage import get_upload_path, ensure_dir
+    rel_path = get_upload_path(shop_id, employee_id, extension)
+    import os
+    full_path = os.path.join(settings.UPLOAD_DIR, rel_path)
+    ensure_dir(os.path.dirname(full_path))
+    with open(full_path, "wb") as f:
+        f.write(content)
+    file_size = len(content)
+    mime_type = file.content_type or "application/octet-stream"
     record = Record(
         id=str(uuid.uuid4()),
         type=rec_type,

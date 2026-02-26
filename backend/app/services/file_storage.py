@@ -1,4 +1,5 @@
 import os
+import time
 import uuid
 from datetime import date
 from pathlib import Path
@@ -8,7 +9,7 @@ from ..config import settings
 def get_upload_path(shop_id: str, employee_id: str, extension: str) -> str:
     today = date.today().isoformat()
     uid = str(uuid.uuid4())[:8]
-    timestamp = int(__import__('time').time())
+    timestamp = int(time.time())
     filename = f"{timestamp}_{uid}.{extension}"
     rel_path = os.path.join(shop_id, today, employee_id, filename)
     return rel_path
