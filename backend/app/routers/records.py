@@ -37,6 +37,9 @@ async def upload_record(
         rec_type = RecordType.photo
 
     extension = (file.filename or "file").rsplit(".", 1)[-1].lower() if "." in (file.filename or "") else "bin"
+    from ..services.file_storage import ALLOWED_EXTENSIONS
+    if extension not in ALLOWED_EXTENSIONS:
+        extension = "bin"
     from ..services.file_storage import get_upload_path, ensure_dir
     rel_path = get_upload_path(shop_id, employee_id, extension)
     import os

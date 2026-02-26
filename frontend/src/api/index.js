@@ -30,7 +30,10 @@ api.interceptors.response.use(
         } catch {
           localStorage.removeItem('access_token')
           localStorage.removeItem('refresh_token')
-          window.location.href = '/login'
+          // Use dynamic import to avoid circular dependency with router
+          import('../router/index.js').then(({ default: router }) => {
+            router.push('/login')
+          })
         }
       }
     }

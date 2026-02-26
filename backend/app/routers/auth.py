@@ -46,7 +46,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == data.email, User.is_active == True).first()
+    user = db.query(User).filter(User.email == data.email, User.is_active.is_(True)).first()
     if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     access_token = create_access_token({"sub": user.id})
@@ -59,7 +59,7 @@ def refresh(data: RefreshRequest, db: Session = Depends(get_db)):
     if not payload or payload.get("type") != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")
     user_id = payload.get("sub")
-    user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
+    user = db.query(User).filter(User.id == user_id, User.is_active.is_(True)).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     access_token = create_access_token({"sub": user.id})
